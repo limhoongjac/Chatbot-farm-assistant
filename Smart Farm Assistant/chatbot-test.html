@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Test - Isolated</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .chatbot-container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .chat-messages { 
+            height: 400px; 
+            overflow-y: auto; 
+            padding: 20px; 
+            background: #fafafa;
+        }
+        .message { 
+            margin: 10px 0; 
+            padding: 10px 15px; 
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .user-message { 
+            background: #e3f2fd; 
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message { 
+            background: #f5f5f5; 
+        }
+        .chat-input-container {
+            display: flex;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+        .send-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .send-btn:hover {
+            background: #45a049;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            background: #fff3cd;
+            border-bottom: 1px solid #ffeaa7;
+            font-size: 12px;
+        }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chat-header">
+            <h2>🌱 Farm Assistant Chat</h2>
+            <p>Test Environment - Debug Mode</p>
+        </div>
+        
+        <div id="status" class="status">Initializing chatbot...</div>
+        
+        <div id="chat-messages" class="chat-messages">
+            <div class="message bot-message">
+                Welcome to the Farm Assistant Chat test! Type a message below and press Enter or click Send.
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Type your farming question here...">
+            <button id="send-message" class="send-btn">Send</button>
+        </div>
+    </div>
+
+    <!-- Load knowledge base first -->
+    <script src="knowledge.js"></script>
+    
+    <script>
+        // Simple chatbot test implementation
+        console.log('Starting chatbot test...');
+        
+        // Check if knowledge.js loaded
+        if (typeof farmingTopics === 'undefined') {
+            console.error('farmingTopics not found - knowledge.js may not have loaded properly');
+            document.getElementById('status').className = 'status error';
+            document.getElementById('status').textContent = 'Error: Knowledge base not loaded';
+        } else {
+            console.log('Knowledge base loaded successfully');
+            document.getElementById('status').className = 'status success';
+            document.getElementById('status').textContent = 'Chatbot ready!';
+        }
+        
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-message');
+        
+        console.log('Elements found:', {
+            chatMessages: !!chatMessages,
+            chatInput: !!chatInput,
+            sendButton: !!sendButton
+        });
+        
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log(`Added ${isUser ? 'user' : 'bot'} message:`, message);
+        }
+        
+        function getSimpleResponse(message) {
+            const query = message.toLowerCase();
+            
+            // Simple keyword matching
+            if (query.includes('hello') || query.includes('hi')) {
+                return "Hello! I'm your Farm Assistant. How can I help you today?";
+            }
+            if (query.includes('tomato')) {
+                return "Tomatoes need full sun, well-drained soil, and consistent watering. Plant them after the last frost and provide support as they grow.";
+            }
+            if (query.includes('pest')) {
+                return "For pest control, try companion planting, neem oil spray, or introducing beneficial insects like ladybugs.";
+            }
+            if (query.includes('water')) {
+                return "Water your plants deeply but less frequently to encourage strong root growth. Early morning is the best time to water.";
+            }
+            
+            // Try to use the knowledge base if available
+            if (typeof farmingTopics !== 'undefined') {
+                for (const category in farmingTopics) {
+                    const topicData = farmingTopics[category];
+                    for (const keyword of topicData.keywords) {
+                        if (query.includes(keyword.toLowerCase())) {
+                            const responses = topicData.responses;
+                            if (Array.isArray(responses)) {
+                                return responses[Math.floor(Math.random() * responses.length)];
+                            }
+                            return responses.general || responses;
+                        }
+                    }
+                }
+            }
+            
+            return "I'm not sure about that specific topic. Try asking about tomatoes, pests, watering, or other farming topics!";
+        }
+        
+        function handleSend() {
+            const message = chatInput.value.trim();
+            console.log('Attempting to send message:', message);
+            
+            if (!message) {
+                console.log('Empty message, not sending');
+                return;
+            }
+            
+            addMessage(message, true);
+            chatInput.value = '';
+            
+            // Simulate AI processing delay
+            setTimeout(() => {
+                const response = getSimpleResponse(message);
+                addMessage(response, false);
+            }, 1000);
+        }
+        
+        // Event listeners
+        sendButton.addEventListener('click', function() {
+            console.log('Send button clicked');
+            handleSend();
+        });
+        
+        chatInput.addEventListener('keypress', function(e) {
+            console.log('Key pressed:', e.key);
+            if (e.key === 'Enter') {
+                console.log('Enter key detected');
+                handleSend();
+            }
+        });
+        
+        // Test the functionality
+        console.log('Chatbot test setup complete');
+        
+        // Auto-test with a sample message after 2 seconds
+        setTimeout(() => {
+            console.log('Running auto-test...');
+            chatInput.value = "Hello";
+            handleSend();
+        }, 2000);
+    </script>
+</body>
+</html>

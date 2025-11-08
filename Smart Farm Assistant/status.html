@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Status Check</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .status-item {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+            background: #f9f9f9;
+        }
+        .status-error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        .status-warning {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+        .test-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 5px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .console-output {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Farm Assistant Chatbot Status</h1>
+        
+        <div class="status-item">
+            <strong>System Status:</strong> <span id="system-status">Checking...</span>
+        </div>
+        
+        <div class="status-item">
+            <strong>Knowledge Base:</strong> <span id="kb-status">Checking...</span>
+        </div>
+        
+        <div class="status-item">
+            <strong>Chatbot Elements:</strong> <span id="elements-status">Checking...</span>
+        </div>
+        
+        <div class="status-item">
+            <strong>Event Listeners:</strong> <span id="listeners-status">Checking...</span>
+        </div>
+        
+        <div class="test-section">
+            <h3>Quick Tests</h3>
+            <p>Click these buttons to test different aspects of the chatbot:</p>
+            <button onclick="testKnowledgeBase()">Test Knowledge Base</button>
+            <button onclick="testElements()">Test Elements</button>
+            <button onclick="testChatbot()">Test Chatbot</button>
+            <button onclick="openMainPage()">Open Main Page</button>
+            
+            <div id="test-results" class="console-output" style="display: none;">
+                <strong>Test Results:</strong>
+                <div id="results-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check system status
+        function updateStatus() {
+            // Check knowledge base
+            if (typeof farmingTopics !== 'undefined') {
+                document.getElementById('kb-status').textContent = 'Loaded ✓';
+                document.getElementById('kb-status').parentElement.className = 'status-item';
+            } else {
+                document.getElementById('kb-status').textContent = 'Not Loaded ✗';
+                document.getElementById('kb-status').parentElement.className = 'status-item status-error';
+            }
+            
+            // Check elements (if we're in the main page context)
+            if (typeof document !== 'undefined') {
+                const chatInput = document.getElementById('chat-input');
+                const sendButton = document.getElementById('send-message');
+                const chatMessages = document.querySelector('.chat-messages');
+                
+                if (chatInput && sendButton && chatMessages) {
+                    document.getElementById('elements-status').textContent = 'All Found ✓';
+                    document.getElementById('elements-status').parentElement.className = 'status-item';
+                } else {
+                    document.getElementById('elements-status').textContent = 'Some Missing ⚠';
+                    document.getElementById('elements-status').parentElement.className = 'status-item status-warning';
+                }
+            }
+            
+            document.getElementById('system-status').textContent = 'Ready ✓';
+        }
+        
+        function testKnowledgeBase() {
+            const results = document.getElementById('results-content');
+            const testDiv = document.getElementById('test-results');
+            
+            testDiv.style.display = 'block';
+            results.innerHTML = '';
+            
+            if (typeof farmingTopics !== 'undefined') {
+                results.innerHTML += '<strong>Knowledge Base Test:</strong><br>';
+                results.innerHTML += 'Available topics: ' + Object.keys(farmingTopics).join(', ') + '<br>';
+                
+                // Test tomato response
+                if (farmingTopics.vegetables && farmingTopics.vegetables.specific.tomato) {
+                    results.innerHTML += 'Tomato info available ✓<br>';
+                }
+                
+                // Test pest response
+                if (farmingTopics.pests) {
+                    results.innerHTML += 'Pest info available ✓<br>';
+                }
+                
+                results.innerHTML += '<em>Knowledge base is working!</em>';
+            } else {
+                results.innerHTML += '<strong>Knowledge Base Error:</strong> farmingTopics not defined<br>';
+                results.innerHTML += 'Make sure knowledge.js is loaded before script.js';
+            }
+        }
+        
+        function testElements() {
+            const results = document.getElementById('results-content');
+            const testDiv = document.getElementById('test-results');
+            
+            testDiv.style.display = 'block';
+            results.innerHTML = '';
+            
+            if (typeof document !== 'undefined') {
+                const chatInput = document.getElementById('chat-input');
+                const sendButton = document.getElementById('send-message');
+                const chatMessages = document.querySelector('.chat-messages');
+                
+                results.innerHTML += '<strong>Element Test:</strong><br>';
+                results.innerHTML += 'chat-input: ' + (chatInput ? 'Found ✓' : 'Missing ✗') + '<br>';
+                results.innerHTML += 'send-message: ' + (sendButton ? 'Found ✓' : 'Missing ✗') + '<br>';
+                results.innerHTML += 'chat-messages: ' + (chatMessages ? 'Found ✓' : 'Missing ✗') + '<br>';
+                
+                if (chatInput && sendButton && chatMessages) {
+                    results.innerHTML += '<em>All elements found!</em>';
+                } else {
+                    results.innerHTML += '<em>Some elements are missing. Check the HTML structure.</em>';
+                }
+            } else {
+                results.innerHTML += 'Document not available in this context.';
+            }
+        }
+        
+        function testChatbot() {
+            const results = document.getElementById('results-content');
+            const testDiv = document.getElementById('test-results');
+            
+            testDiv.style.display = 'block';
+            results.innerHTML = '';
+            
+            results.innerHTML += '<strong>Chatbot Test:</strong><br>';
+            results.innerHTML += 'Opening main page with debug mode...<br>';
+            results.innerHTML += 'Check for alerts and console messages.<br>';
+            
+            setTimeout(() => {
+                window.open('index.html', '_blank');
+            }, 1000);
+        }
+        
+        function openMainPage() {
+            window.open('index.html', '_blank');
+        }
+        
+        // Update status on load
+        updateStatus();
+        
+        // Show instructions
+        setTimeout(() => {
+            alert('Status page loaded! Click the test buttons to check different parts of the chatbot system.');
+        }, 1000);
+    </script>
+</body>
+</html>

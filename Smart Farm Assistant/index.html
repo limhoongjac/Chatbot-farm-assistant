@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farm Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="description" content="Smart Farm Assistant - Your agricultural knowledge companion">
+    <!-- Accessibility improvements -->
+    <meta name="theme-color" content="#4CAF50">
+</head>
+<body>
+    <div class="container" aria-label="Smart Farm Assistant Application">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" aria-label="Main Navigation">
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+                <h2>Farm Assistant</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#dashboard" aria-current="page"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#monitoring"><i class="fas fa-thermometer-half"></i> Monitoring</a></li>
+                <li><a href="#controls"><i class="fas fa-sliders-h"></i> Controls</a></li>
+                <li><a href="#analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="#chatbot"><i class="fas fa-comments"></i> Farm Chat</a></li>
+                <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-info">
+                <img src="https://via.placeholder.com/50" alt="User Profile">
+                <div class="user-details">
+                    <span class="user-name">Farm Manager</span>
+                    <span class="user-location" id="user-location">Set Location</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="dashboard">
+            <header>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="header-right">
+                    <div class="weather-widget">
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>24°C</span>
+                    </div>
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-title">
+                <h1>Farm Dashboard</h1>
+                <p>Overview of your farm's current status</p>
+                <div class="season-indicator">
+                    <i class="fas fa-sun"></i>
+                    <span>Current Season: <strong id="current-season">Summer</strong></span>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon temperature">
+                        <i class="fas fa-temperature-high"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Temperature</h3>
+                        <p class="stat-value">24°C</p>
+                        <p class="stat-change increase"><i class="fas fa-arrow-up"></i> 2°C since yesterday</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon humidity">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Humidity</h3>
+                        <p class="stat-value">65%</p>
+                        <p class="stat-change decrease"><i class="fas fa-arrow-down"></i> 5% since yesterday</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon soil">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Soil Moisture</h3>
+                        <p class="stat-value">42%</p>
+                        <p class="stat-change stable"><i class="fas fa-equals"></i> Stable</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon light">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Light Intensity</h3>
+                        <p class="stat-value">12,450 lux</p>
+                        <p class="stat-change increase"><i class="fas fa-arrow-up"></i> 1,200 lux</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Systems -->
+            <div class="section-title">
+                <h2>Control Systems</h2>
+                <button class="btn-primary">Configure</button>
+            </div>
+            <div class="control-systems">
+                <div class="control-card">
+                    <div class="control-header">
+                        <h3>Irrigation System</h3>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="control-body">
+                        <div class="control-status active">
+                            <span class="status-dot"></span>
+                            <span>Active</span>
+                        </div>
+                        <div class="control-details">
+                            <p>Next scheduled: <strong>Today, 18:00</strong></p>
+                            <p>Duration: <strong>30 minutes</strong></p>
+                        </div>
+                        <div class="control-actions">
+                            <button class="btn-secondary">Run Now</button>
+                            <button class="btn-outline">Schedule</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-card">
+                    <div class="control-header">
+                        <h3>Ventilation</h3>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="control-body">
+                        <div class="control-status inactive">
+                            <span class="status-dot"></span>
+                            <span>Inactive</span>
+                        </div>
+                        <div class="control-details">
+                            <p>Last active: <strong>Today, 12:30</strong></p>
+                            <p>Duration: <strong>45 minutes</strong></p>
+                        </div>
+                        <div class="control-actions">
+                            <button class="btn-secondary">Run Now</button>
+                            <button class="btn-outline">Schedule</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-card">
+                    <div class="control-header">
+                        <h3>Lighting System</h3>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="control-body">
+                        <div class="control-status active">
+                            <span class="status-dot"></span>
+                            <span>Active</span>
+                        </div>
+                        <div class="control-details">
+                            <p>Mode: <strong>Automatic</strong></p>
+                            <p>Intensity: <strong>75%</strong></p>
+                        </div>
+                        <div class="control-actions">
+                            <button class="btn-secondary">Adjust</button>
+                            <button class="btn-outline">Schedule</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crop Monitoring -->
+            <div id="monitoring">
+            <div class="section-title">
+                <h2>Crop Monitoring</h2>
+                <button class="btn-primary">View All</button>
+            </div>
+            <div class="crop-monitoring">
+                <div class="crop-card">
+                    <img src="https://via.placeholder.com/100" alt="Tomatoes">
+                    <div class="crop-info">
+                        <h3>Tomatoes</h3>
+                        <p>Growth stage: <strong>Flowering</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 65%;"></div>
+                        </div>
+                        <p class="progress-text">65% to harvest</p>
+                    </div>
+                    <div class="crop-status">
+                        <div class="status-item">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span>23°C</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-tint"></i>
+                            <span>68%</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-sun"></i>
+                            <span>High</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="crop-card">
+                    <img src="https://via.placeholder.com/100" alt="Lettuce">
+                    <div class="crop-info">
+                        <h3>Lettuce</h3>
+                        <p>Growth stage: <strong>Mature</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 90%;"></div>
+                        </div>
+                        <p class="progress-text">90% to harvest</p>
+                    </div>
+                    <div class="crop-status">
+                        <div class="status-item">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span>21°C</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-tint"></i>
+                            <span>72%</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-sun"></i>
+                            <span>Medium</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="crop-card">
+                    <img src="https://via.placeholder.com/100" alt="Carrots">
+                    <div class="crop-info">
+                        <h3>Carrots</h3>
+                        <p>Growth stage: <strong>Growing</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 45%;"></div>
+                        </div>
+                        <p class="progress-text">45% to harvest</p>
+                    </div>
+                    <div class="crop-status">
+                        <div class="status-item">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span>22°C</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-tint"></i>
+                            <span>65%</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-sun"></i>
+                            <span>Low</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Analytics Preview -->
+            <div id="analytics">
+            <div class="section-title">
+                <h2>Analytics</h2>
+                <button class="btn-primary">Full Report</button>
+            </div>
+            <div class="analytics-preview">
+                <div class="chart-container">
+                    <h3>Weekly Temperature</h3>
+                    <div class="chart-placeholder">
+                        <!-- Chart will be rendered by JavaScript -->
+                        <p class="chart-loading">Loading chart data...</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>Resource Usage</h3>
+                    <div class="chart-placeholder">
+                        <!-- Chart will be rendered by JavaScript -->
+                        <p class="chart-loading">Loading chart data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chatbot Interface -->
+            <div id="chatbot" class="chatbot-section">
+                <div class="section-title">
+                    <h2>Farm Assistant Chat</h2>
+                    <button class="btn-primary" id="clear-chat">Clear Chat</button>
+                </div>
+                
+                <div class="chatbot-container">
+                    <div class="chat-messages" id="chat-messages" aria-live="polite">
+                        <!-- Messages will be added here by JavaScript -->
+                        <div class="message bot-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Welcome to Farm Assistant! I can help with:</p>
+                                <ul>
+                                    <li>Crop selection and planting advice</li>
+                                    <li>Soil management tips</li>
+                                    <li>Pest and disease identification</li>
+                                    <li>Irrigation and water management</li>
+                                    <li>Seasonal farming guidance</li>
+                                </ul>
+                                <p>How can I assist you today?</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" data-query="best crops for summer">Summer Crops</button>
+                        <button class="quick-action-btn" data-query="organic pest control">Pest Control</button>
+                        <button class="quick-action-btn" data-query="water conservation tips">Water Tips</button>
+                        <button class="quick-action-btn" data-query="soil health">Soil Health</button>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Ask about farming, crops, or gardening..." aria-label="Type your message">
+                        <button id="send-message" aria-label="Send message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Location Settings -->
+            <div id="location-settings" class="location-settings">
+                <div class="section-title">
+                    <h2>Your Location</h2>
+                </div>
+                <div class="location-form">
+                    <div class="form-group">
+                        <label for="region">Region/Climate Zone:</label>
+                        <select id="region" aria-label="Select your region or climate zone">
+                            <option value="North America">North America</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Australia">Australia</option>
+                            <option value="South America">South America</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="climate">Climate Type:</label>
+                        <select id="climate" aria-label="Select your climate type">
+                            <option value="Temperate">Temperate</option>
+                            <option value="Tropical">Tropical</option>
+                            <option value="Arid">Arid/Desert</option>
+                            <option value="Mediterranean">Mediterranean</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="season">Current Growing Season:</label>
+                        <select id="season" aria-label="Select your current growing season">
+                            <option value="Spring">Spring</option>
+                            <option value="Summer" selected>Summer</option>
+                            <option value="Fall">Fall/Autumn</option>
+                            <option value="Winter">Winter</option>
+                            <option value="Rainy">Rainy</option>
+                            <option value="Dry">Dry</option>
+                        </select>
+                    </div>
+                    <button id="save-location" class="btn-primary">Save Location</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="knowledge.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
