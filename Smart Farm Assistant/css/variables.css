@@ -1,0 +1,67 @@
+:root {
+    /* Color Palette - Dark Forest Theme */
+    --primary-color: #10b981;
+    /* Emerald 500 */
+    --primary-dark: #059669;
+    /* Emerald 600 */
+    --primary-light: #34d399;
+    /* Emerald 400 */
+
+    --bg-body: #022c22;
+    /* Very Dark Green */
+    --bg-card: #111827;
+    /* Dark Slate / Gray 900 */
+    --bg-header: #1f2937;
+    /* Gray 800 */
+
+    /* Text */
+    --text-main: #f9fafb;
+    /* Gray 50 */
+    --text-secondary: #9ca3af;
+    /* Gray 400 */
+    --text-muted: #6b7280;
+    /* Gray 500 */
+
+    /* Inputs */
+    --input-bg: #1f2937;
+    --input-border: #374151;
+
+    /* Decoration */
+    --accent-glow: rgba(16, 185, 129, 0.2);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    /* Spacing & Layout */
+    --header-height: 50px;
+    /* Further reduced */
+    --sidebar-width: 200px;
+    /* Reduced from 240px */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
+
+/* Base Scale Adjustment */
+html {
+    font-size: 12px;
+    /* Aggressive reduction from 14px */
+}
+
+/* Dark Mode Overrides (if scaling needed per theme, otherwise mostly same) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-body: #111827;
+        --bg-card: rgba(31, 41, 55, 0.7);
+        --bg-sidebar: rgba(17, 24, 39, 0.8);
+        --text-main: #f3f4f6;
+        --text-secondary: #d1d5db;
+        --border-color: rgba(255, 255, 255, 0.1);
+    }
+}

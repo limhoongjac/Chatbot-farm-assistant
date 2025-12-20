@@ -1,0 +1,265 @@
+@import 'variables.css';
+
+/* Cards */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-glass);
+    padding: 0.75rem;
+    /* Reduced from 1rem */
+    margin-bottom: 0;
+}
+
+/* Header Widgets */
+.widget-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    /* Reduced padding */
+    background: #064e3b;
+    /* Darker green badge bg */
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    /* Reduced font */
+    font-weight: 500;
+    color: var(--primary-light);
+}
+
+.location-badge i {
+    color: #f87171;
+    /* Rednish marker */
+}
+
+.season-badge {
+    background: #0f172a;
+    /* Darker slate for season */
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+}
+
+/* Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    /* Allow smaller cards */
+    gap: 1rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.stat-icon {
+    width: 36px;
+    /* Reduced from 48px */
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--primary-color);
+}
+
+.stat-info h3 {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    /* Reduced from 1.5rem */
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Controls */
+.control-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    /* Reduced padding */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    /* Darker border */
+}
+
+.control-item:last-child {
+    border-bottom: none;
+}
+
+.control-info h4 {
+    font-size: 0.9rem;
+    /* Reduced */
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.control-info p {
+    font-size: 0.8rem;
+    /* Reduced */
+    color: var(--text-secondary);
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    /* Reduced width */
+    height: 24px;
+    /* Reduced height */
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #374151;
+    /* Darker bg for off state */
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    /* Reduced */
+    width: 18px;
+    /* Reduced */
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(18px);
+    /* Reduced translate */
+}
+
+/* Buttons */
+.btn {
+    padding: 0.4rem 0.75rem;
+    /* Reduced */
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    /* Reduced */
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent-light);
+}
+
+.btn-secondary:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 200px;
+    /* Reduced from 250px */
+    width: 100%;
+}
+
+/* Chat Container Restored styles */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chat-input-area {
+    margin-top: 1rem;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background: var(--bg-body);
+    /* Darker input area */
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    outline: none;
+    padding: 0.5rem;
+}
+
+.send-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.send-btn:hover {
+    background: var(--primary-dark);
+}
