@@ -1,333 +1,260 @@
-// Color Palette Generator
+// Chromagen - Premium Color Palette Generator
 
-// Store the current palette colors and their locked status
+// State
 let colors = [];
 const DEFAULT_PALETTE_SIZE = 5;
-const MAX_VISIBLE_COLORS = 30; // Maximum colors to show before pagination
 
-// Initialize the application
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Generate initial palette
-    generateRandomPalette();
-    
-    // Set up event listeners
-    document.getElementById('generate-btn').addEventListener('click', generatePalette);
-    document.getElementById('palette-size').addEventListener('change', updatePaletteSize);
-    document.getElementById('color-mode').addEventListener('change', generatePalette);
-    document.getElementById('export-btn').addEventListener('click', toggleExportOptions);
-    
-    // Set up export option buttons
-    const exportButtons = document.querySelectorAll('.export-options button');
-    exportButtons.forEach(button => {
-        button.addEventListener('click', () => exportPalette(button.dataset.format));
-    });
+    generatePalette();
+    setupEventListeners();
 });
 
-// Generate a palette based on the selected mode
-function generatePalette() {
-    const mode = document.getElementById('color-mode').value;
-    
-    switch(mode) {
-        case 'monochromatic':
-            generateMonochromaticPalette();
-            break;
-        case 'analogous':
-            generateAnalogousPalette();
-            break;
-        case 'complementary':
-            generateComplementaryPalette();
-            break;
-        default:
-            generateRandomPalette();
-    }
+function setupEventListeners() {
+    // Main controls
+    document.getElementById('generate-btn').addEventListener('click', generatePalette);
+    document.getElementById('palette-size').addEventListener('change', () => generatePalette());
+    document.getElementById('color-mode').addEventListener('change', () => generatePalette());
+
+    // Export controls
+    const exportBtn = document.getElementById('export-btn');
+    const exportOptions = document.getElementById('export-options');
+
+    exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportOptions.classList.toggle('visible');
+    });
+
+    // Close export menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!exportBtn.contains(e.target) && !exportOptions.contains(e.target)) {
+            exportOptions.classList.remove('visible');
+        }
+    });
+
+    // Export format buttons
+    document.querySelectorAll('.export-options button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            exportPalette(btn.dataset.format);
+            exportOptions.classList.remove('visible');
+        });
+    });
+
+    // Keyboard shortcut (Spacebar)
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+            e.preventDefault(); // Prevent scrolling
+            generatePalette();
+        }
+    });
+
+    // Modal Close
+    document.getElementById('close-modal').addEventListener('click', closeShadesModal);
+    document.getElementById('shades-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'shades-modal') closeShadesModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeShadesModal();
+    });
 }
 
-// Generate a random color palette
-function generateRandomPalette() {
-    const paletteSize = getPaletteSize();
-    
-    // Initialize colors array if empty or resize it
-    if (colors.length !== paletteSize) {
-        // Preserve locked colors when changing size
-        const newColors = Array(paletteSize).fill().map((_, i) => {
+// Core Logic
+function generatePalette() {
+    const mode = document.getElementById('color-mode').value;
+    let size = parseInt(document.getElementById('palette-size').value);
+
+    // Validate size
+    if (isNaN(size) || size < 1) size = 1;
+    if (size > 100) size = 100;
+
+    // Resize colors array if needed, preserving locked colors
+    if (colors.length !== size) {
+        const newColors = Array(size).fill().map((_, i) => {
             return colors[i] || { hex: getRandomHex(), locked: false };
         });
         colors = newColors;
-    } else {
-        // Update only unlocked colors
-        colors = colors.map(color => {
-            return color.locked ? color : { hex: getRandomHex(), locked: false };
-        });
     }
-    
+
+    // Generate based on mode
+    switch (mode) {
+        case 'monochromatic': generateMonochromatic(size); break;
+        case 'analogous': generateAnalogous(size); break;
+        case 'complementary': generateComplementary(size); break;
+        case 'triadic': generateTriadic(size); break;
+        default: generateRandom(size);
+    }
+
     renderPalette();
 }
 
-// Generate a monochromatic color palette (variations of a single hue)
-function generateMonochromaticPalette() {
-    const paletteSize = getPaletteSize();
-    const baseHSL = getBaseHSL();
-    
-    // Create variations with different lightness and saturation
-    const newColors = [];
-    for (let i = 0; i < paletteSize; i++) {
-        if (colors[i] && colors[i].locked) {
-            newColors.push(colors[i]);
-        } else {
-            const saturation = 70 + Math.random() * 30; // 70-100%
-            const lightness = 20 + (i * 60 / paletteSize); // Distribute lightness
-            const hex = hslToHex(baseHSL.h, saturation, lightness);
-            newColors.push({ hex, locked: false });
-        }
-    }
-    
-    colors = newColors;
-    renderPalette();
+// Generation Algorithms
+function generateRandom(size) {
+    colors = colors.map(c => c.locked ? c : { hex: getRandomHex(), locked: false });
 }
 
-// Generate an analogous color palette (colors adjacent on the color wheel)
-function generateAnalogousPalette() {
-    const paletteSize = getPaletteSize();
-    const baseHSL = getBaseHSL();
-    const hueRange = 60; // Total range of hue variation
-    
-    const newColors = [];
-    for (let i = 0; i < paletteSize; i++) {
-        if (colors[i] && colors[i].locked) {
-            newColors.push(colors[i]);
-        } else {
-            // Distribute hues evenly across the range
-            const hueOffset = (i * hueRange / (paletteSize - 1)) - (hueRange / 2);
-            const hue = (baseHSL.h + hueOffset + 360) % 360;
-            const saturation = 70 + Math.random() * 30;
-            const lightness = 40 + Math.random() * 20;
-            const hex = hslToHex(hue, saturation, lightness);
-            newColors.push({ hex, locked: false });
-        }
-    }
-    
-    colors = newColors;
-    renderPalette();
+function generateMonochromatic(size) {
+    const base = getBaseColor();
+    const baseHSL = hexToHSL(base.hex);
+
+    colors = colors.map((c, i) => {
+        if (c.locked) return c;
+        const l = 20 + (i * 60 / size); // Spread lightness
+        return { hex: hslToHex(baseHSL.h, baseHSL.s, l), locked: false };
+    });
 }
 
-// Generate a complementary color palette (colors opposite on the color wheel)
-function generateComplementaryPalette() {
-    const paletteSize = getPaletteSize();
-    const baseHSL = getBaseHSL();
-    
-    const newColors = [];
-    for (let i = 0; i < paletteSize; i++) {
-        if (colors[i] && colors[i].locked) {
-            newColors.push(colors[i]);
-        } else {
-            let hue;
-            if (i < paletteSize / 2) {
-                // First half: variations around the base hue
-                hue = (baseHSL.h + (i * 15)) % 360;
-            } else {
-                // Second half: variations around the complementary hue
-                const complementaryHue = (baseHSL.h + 180) % 360;
-                hue = (complementaryHue + ((i - Math.floor(paletteSize / 2)) * 15)) % 360;
-            }
-            
-            const saturation = 70 + Math.random() * 30;
-            const lightness = 40 + Math.random() * 20;
-            const hex = hslToHex(hue, saturation, lightness);
-            newColors.push({ hex, locked: false });
-        }
-    }
-    
-    colors = newColors;
-    renderPalette();
+function generateAnalogous(size) {
+    const base = getBaseColor();
+    const baseHSL = hexToHSL(base.hex);
+
+    colors = colors.map((c, i) => {
+        if (c.locked) return c;
+        const h = (baseHSL.h + (i * 30)) % 360;
+        return { hex: hslToHex(h, baseHSL.s, baseHSL.l), locked: false };
+    });
 }
 
-// Get a base HSL color for generating palettes
-function getBaseHSL() {
-    // Try to use an existing unlocked color as base
-    const unlockedColors = colors.filter(color => !color.locked);
-    
-    if (unlockedColors.length > 0) {
-        const baseColor = unlockedColors[Math.floor(Math.random() * unlockedColors.length)];
-        return hexToHSL(baseColor.hex);
-    }
-    
-    // If all colors are locked or no colors exist, create a random base
-    return {
-        h: Math.floor(Math.random() * 360),
-        s: 80,
-        l: 50
-    };
+function generateComplementary(size) {
+    const base = getBaseColor();
+    const baseHSL = hexToHSL(base.hex);
+
+    colors = colors.map((c, i) => {
+        if (c.locked) return c;
+        const h = i < size / 2 ? baseHSL.h : (baseHSL.h + 180) % 360;
+        const l = 40 + Math.random() * 20;
+        return { hex: hslToHex(h, baseHSL.s, l), locked: false };
+    });
 }
 
-// Update the palette size based on the select input
-function updatePaletteSize() {
-    generatePalette();
+function generateTriadic(size) {
+    const base = getBaseColor();
+    const baseHSL = hexToHSL(base.hex);
+
+    colors = colors.map((c, i) => {
+        if (c.locked) return c;
+        const h = (baseHSL.h + (i * 120)) % 360; // 0, 120, 240
+        return { hex: hslToHex(h, baseHSL.s, baseHSL.l), locked: false };
+    });
 }
 
-// Get the current palette size from the select input
-function getPaletteSize() {
-    return parseInt(document.getElementById('palette-size').value);
+function getBaseColor() {
+    const locked = colors.find(c => c.locked);
+    return locked || { hex: getRandomHex() };
 }
 
-// Render the color palette to the DOM
+// Rendering
 function renderPalette() {
-    const paletteContainer = document.getElementById('color-palette');
-    paletteContainer.innerHTML = '';
-    
-    // Add pagination controls if needed
-    const paletteSize = colors.length;
-    
-    // Create a grid container for better organization of many colors
-    const gridContainer = document.createElement('div');
-    gridContainer.className = 'color-grid';
-    paletteContainer.appendChild(gridContainer);
-    
-    // Render all colors
+    const container = document.getElementById('color-palette');
+    container.innerHTML = '';
+
+    const grid = document.createElement('div');
+    grid.className = 'color-grid';
+
+    // Adjust grid columns based on count
+    if (colors.length > 10) {
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+    } else {
+        grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+    }
+
     colors.forEach((color, index) => {
         const swatch = document.createElement('div');
         swatch.className = 'color-swatch';
-        
-        // Create the color display area
-        const colorDisplay = document.createElement('div');
-        colorDisplay.className = 'color-display';
-        colorDisplay.style.backgroundColor = color.hex;
-        
-        // Create the lock icon
-        const lockIcon = document.createElement('div');
-        lockIcon.className = 'lock-icon';
-        lockIcon.innerHTML = color.locked ? 
-            '<i class="fas fa-lock"></i>' : 
-            '<i class="fas fa-lock-open"></i>';
-        
-        lockIcon.addEventListener('click', () => toggleLock(index));
-        
-        // Create the color info section
-        const colorInfo = document.createElement('div');
-        colorInfo.className = 'color-info';
-        
-        const hexValue = document.createElement('div');
-        hexValue.className = 'color-hex';
-        hexValue.textContent = color.hex.toUpperCase();
-        
-        const rgbValue = document.createElement('div');
-        rgbValue.className = 'color-rgb';
-        const rgb = hexToRgb(color.hex);
-        rgbValue.textContent = `RGB: ${rgb.r}, ${rgb.g}, ${rgb.b}`;
-        
-        // Assemble the swatch
-        colorInfo.appendChild(hexValue);
-        colorInfo.appendChild(rgbValue);
-        swatch.appendChild(colorDisplay);
-        swatch.appendChild(lockIcon);
-        swatch.appendChild(colorInfo);
-        
-        // Add click event to copy the color code
-        colorDisplay.addEventListener('click', () => {
-            copyToClipboard(color.hex);
-            showCopiedMessage(colorDisplay, 'Copied!');
-        });
-        
-        gridContainer.appendChild(swatch);
+        if (colors.length > 20) swatch.classList.add('compact');
+
+        // Calculate contrast color for text/icons
+        const textColor = getContrastColor(color.hex);
+
+        // Lock Button
+        const lockBtn = document.createElement('div');
+        lockBtn.className = 'lock-btn';
+        lockBtn.innerHTML = color.locked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-lock-open"></i>';
+        lockBtn.style.color = textColor;
+        lockBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleLock(index);
+        };
+
+        // Color Display
+        const display = document.createElement('div');
+        display.className = 'color-display';
+        display.style.backgroundColor = color.hex;
+        display.innerHTML = `<span class="copy-overlay" style="color: ${textColor}">View Shades</span>`;
+        display.onclick = () => openShadesModal(color.hex);
+
+        // Info Area
+        const info = document.createElement('div');
+        info.className = 'color-info';
+
+        const name = document.createElement('div');
+        name.className = 'color-name';
+        name.textContent = getNearestColorName(color.hex);
+
+        const hex = document.createElement('div');
+        hex.className = 'color-hex';
+        hex.textContent = color.hex.toUpperCase();
+
+        // Hide RGB if too compact
+        if (colors.length <= 20) {
+            const rgb = document.createElement('div');
+            rgb.className = 'color-rgb';
+            const rgbVal = hexToRgb(color.hex);
+            rgb.textContent = `${rgbVal.r}, ${rgbVal.g}, ${rgbVal.b}`;
+
+            info.appendChild(name);
+            info.appendChild(hex);
+            info.appendChild(rgb);
+        } else {
+            info.appendChild(name);
+            info.appendChild(hex);
+        }
+
+        swatch.appendChild(lockBtn);
+        swatch.appendChild(display);
+        swatch.appendChild(info);
+        grid.appendChild(swatch);
     });
-    
-    // Add color count indicator if there are many colors
-    if (paletteSize > 10) {
-        const countIndicator = document.createElement('div');
-        countIndicator.className = 'color-count';
-        countIndicator.textContent = `Total colors: ${paletteSize}`;
-        paletteContainer.insertBefore(countIndicator, paletteContainer.firstChild);
-    }
+
+    container.appendChild(grid);
 }
 
-// Toggle the lock state of a color
 function toggleLock(index) {
     colors[index].locked = !colors[index].locked;
     renderPalette();
 }
 
-// Toggle the export options visibility
-function toggleExportOptions() {
-    const exportOptions = document.getElementById('export-options');
-    const currentDisplay = exportOptions.style.display;
-    exportOptions.style.display = currentDisplay === 'none' ? 'flex' : 'none';
-}
-
-// Export the palette in different formats
-function exportPalette(format) {
-    let exportText = '';
-    
-    switch(format) {
-        case 'hex':
-            exportText = colors.map(color => color.hex.toUpperCase()).join(', ');
-            break;
-        case 'rgb':
-            exportText = colors.map(color => {
-                const rgb = hexToRgb(color.hex);
-                return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-            }).join(', ');
-            break;
-        case 'css':
-            exportText = colors.map((color, i) => {
-                return `--color-${i + 1}: ${color.hex.toUpperCase()};`;
-            }).join('\n');
-            break;
-    }
-    
-    copyToClipboard(exportText);
-    showCopiedMessage(document.getElementById('export-btn'), 'Palette copied!');
-}
-
-// Helper function to copy text to clipboard
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).catch(err => {
-        console.error('Could not copy text: ', err);
-    });
-}
-
-// Show a temporary message when something is copied
-function showCopiedMessage(element, message) {
-    const notification = document.createElement('div');
-    notification.textContent = message;
-    notification.style.position = 'absolute';
-    notification.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    notification.style.color = 'white';
-    notification.style.padding = '8px 12px';
-    notification.style.borderRadius = '4px';
-    notification.style.zIndex = '1000';
-    notification.style.opacity = '0';
-    notification.style.transition = 'opacity 0.3s';
-    
-    // Position the notification near the element
-    const rect = element.getBoundingClientRect();
-    notification.style.top = `${rect.top - 40}px`;
-    notification.style.left = `${rect.left + rect.width / 2 - 50}px`;
-    
-    document.body.appendChild(notification);
-    
-    // Show and then hide the notification
-    setTimeout(() => {
-        notification.style.opacity = '1';
-        
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 1500);
-    }, 10);
-}
-
-// Generate a random hex color
+// Utilities
 function getRandomHex() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 }
 
-// Convert hex color to RGB
+function getContrastColor(hex) {
+    const rgb = hexToRgb(hex);
+    // YIQ equation for brightness
+    const yiq = ((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000;
+    return yiq >= 128 ? '#000000' : '#ffffff';
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+    // Could add a toast notification here
+}
+
+function exportPalette(format) {
+    let text = '';
+    switch (format) {
+        case 'hex': text = colors.map(c => c.hex).join(', '); break;
+        case 'rgb': text = colors.map(c => {
+            const rgb = hexToRgb(c.hex);
+            return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        }).join(', '); break;
+        case 'css': text = colors.map((c, i) => `--color-${i + 1}: ${c.hex};`).join('\n'); break;
+    }
+    copyToClipboard(text);
+    alert('Palette copied to clipboard!');
+}
+
+// Color Conversions
 function hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -337,72 +264,103 @@ function hexToRgb(hex) {
     } : null;
 }
 
-// Convert hex color to HSL
 function hexToHSL(hex) {
-    const rgb = hexToRgb(hex);
-    return rgbToHSL(rgb.r, rgb.g, rgb.b);
-}
-
-// Convert RGB to HSL
-function rgbToHSL(r, g, b) {
-    r /= 255;
-    g /= 255;
-    b /= 255;
-    
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
+    let { r, g, b } = hexToRgb(hex);
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
     let h, s, l = (max + min) / 2;
-    
-    if (max === min) {
-        h = s = 0; // achromatic
-    } else {
+    if (max === min) { h = s = 0; } else {
         const d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        
         switch (max) {
             case r: h = (g - b) / d + (g < b ? 6 : 0); break;
             case g: h = (b - r) / d + 2; break;
             case b: h = (r - g) / d + 4; break;
         }
-        
         h /= 6;
     }
-    
-    return {
-        h: Math.round(h * 360),
-        s: Math.round(s * 100),
-        l: Math.round(l * 100)
-    };
+    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
 }
 
-// Convert HSL to hex
 function hslToHex(h, s, l) {
-    s /= 100;
     l /= 100;
-    
-    const c = (1 - Math.abs(2 * l - 1)) * s;
-    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-    const m = l - c / 2;
-    
-    let r, g, b;
-    
-    if (h >= 0 && h < 60) {
-        [r, g, b] = [c, x, 0];
-    } else if (h >= 60 && h < 120) {
-        [r, g, b] = [x, c, 0];
-    } else if (h >= 120 && h < 180) {
-        [r, g, b] = [0, c, x];
-    } else if (h >= 180 && h < 240) {
-        [r, g, b] = [0, x, c];
-    } else if (h >= 240 && h < 300) {
-        [r, g, b] = [x, 0, c];
-    } else {
-        [r, g, b] = [c, 0, x];
+    const a = s * Math.min(l, 1 - l) / 100;
+    const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+// Shades & Tints Logic
+function openShadesModal(hex) {
+    const modal = document.getElementById('shades-modal');
+    const display = document.getElementById('modal-color-display');
+    const hexText = document.getElementById('modal-color-hex');
+    const tintsGrid = document.getElementById('tints-grid');
+    const shadesGrid = document.getElementById('shades-grid');
+
+    display.style.backgroundColor = hex;
+    display.style.color = getContrastColor(hex);
+    hexText.textContent = hex.toUpperCase();
+
+    // Generate and render variations
+    renderVariations(tintsGrid, generateTints(hex));
+    renderVariations(shadesGrid, generateShades(hex));
+
+    modal.classList.add('visible');
+}
+
+function closeShadesModal() {
+    document.getElementById('shades-modal').classList.remove('visible');
+}
+
+function generateTints(hex) {
+    const tints = [];
+    const { r, g, b } = hexToRgb(hex);
+
+    for (let i = 1; i <= 10; i++) {
+        const factor = i / 11;
+        const newR = Math.round(r + (255 - r) * factor);
+        const newG = Math.round(g + (255 - g) * factor);
+        const newB = Math.round(b + (255 - b) * factor);
+        tints.push(rgbToHex(newR, newG, newB));
     }
-    
-    r = Math.round((r + m) * 255).toString(16).padStart(2, '0');
-    g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
-    b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
-    
-    return `#${r}${g}${b}`;
+    return tints;
+}
+
+function generateShades(hex) {
+    const shades = [];
+    const { r, g, b } = hexToRgb(hex);
+
+    for (let i = 1; i <= 10; i++) {
+        const factor = 1 - (i / 11);
+        const newR = Math.round(r * factor);
+        const newG = Math.round(g * factor);
+        const newB = Math.round(b * factor);
+        shades.push(rgbToHex(newR, newG, newB));
+    }
+    return shades;
+}
+
+function renderVariations(container, colors) {
+    container.innerHTML = '';
+    colors.forEach(hex => {
+        const chip = document.createElement('div');
+        chip.className = 'variation-chip';
+        chip.style.backgroundColor = hex;
+        chip.onclick = () => {
+            copyToClipboard(hex);
+            // Visual feedback
+            const originalTransform = chip.style.transform;
+            chip.style.transform = 'scale(0.9)';
+            setTimeout(() => chip.style.transform = originalTransform, 100);
+        };
+        container.appendChild(chip);
+    });
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
